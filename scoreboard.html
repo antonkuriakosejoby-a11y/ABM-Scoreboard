@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>ABM Scoreboard</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f7fb;
+        color: #222;
+    }
+
+    header {
+        background: #111827;
+        color: white;
+        padding: 22px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .team {
+        background: white;
+        padding: 30px;
+        margin-bottom: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .team h2 {
+        margin-bottom: 10px;
+    }
+
+    .score {
+        font-size: 55px;
+        font-weight: bold;
+        margin: 15px;
+    }
+
+    .leading {
+        text-align: center;
+        font-size: 23px;
+        font-weight: bold;
+        margin: 30px 0;
+    }
+
+    .back {
+        display: block;
+        margin: 20px auto;
+        padding: 14px 25px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .back:hover {
+        background: #1d4ed8;
+    }
+
+    #status {
+        text-align: center;
+        color: #666;
+        margin-top: 15px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<header>
+    ABM Scoreboard
+</header>
+
+<div class="container">
+
+```
+<div class="team">
+    <h2>Team GWu</h2>
+    <div class="score" id="gwuScore">0</div>
+</div>
+
+<div class="team">
+    <h2>Team ATb</h2>
+    <div class="score" id="atbScore">0</div>
+</div>
+
+<div class="leading" id="leading">
+    The teams are tied
+</div>
+
+<p id="status">
+    🟢 Live scoreboard
+</p>
+
+<button class="back" onclick="location.href='index.html'">
+    BACK
+</button>
+```
+
+</div>
+
+<script type="module">
+
+    import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+    import {
+        getFirestore,
+        doc,
+        onSnapshot
+    } from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+    // YOUR FIREBASE CONFIG
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyApvakGAfMcDM_hfaaUrbs_1w3xLIwMctE",
+        authDomain: "abm-scoreboard.firebaseapp.com",
+        projectId: "abm-scoreboard",
+        storageBucket: "abm-scoreboard.firebasestorage.app",
+        messagingSenderId: "684237199515",
+        appId: "1:684237199515:web:a7d9025da138d93e340e3e"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const db = getFirestore(app);
+
+
+    // Firebase scoreboard location
+
+    const scoreboardRef =
+        doc(db, "scoreboard", "scores");
+
+
+    // Listen for live score changes
+
+    onSnapshot(scoreboardRef, (snapshot) => {
+
+        if (!snapshot.exists()) {
+
+            document.getElementById("status").textContent =
+                "Scoreboard data not found.";
+
+            return;
+        }
+
+
+        const data = snapshot.data();
+
+
+        const gwu = Number(data.GWu || 0);
+        const atb = Number(data.ATb || 0);
+
+
+        document.getElementById("gwuScore")
+            .textContent = gwu;
+
+        document.getElementById("atbScore")
+            .textContent = atb;
+
+
+        // Find the leading team
+
+        if (gwu > atb) {
+
+            document.getElementById("leading").textContent =
+                "Team GWu is leading";
+
+        } else if (atb > gwu) {
+
+            document.getElementById("leading").textContent =
+                "Team ATb is leading";
+
+        } else {
+
+            document.getElementById("leading").textContent =
+                "The teams are tied";
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
