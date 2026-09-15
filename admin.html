@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin - ABM Scoreboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 22px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .login {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+        }
+
+        .login:hover {
+            background: #1d4ed8;
+        }
+
+        .team {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .team h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .score {
+            font-size: 50px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .plus,
+        .minus {
+            width: 70px;
+            height: 50px;
+            font-size: 25px;
+            color: white;
+        }
+
+        .plus {
+            background: #16a34a;
+        }
+
+        .minus {
+            background: #dc2626;
+        }
+
+        .logout {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 25px;
+            background: #374151;
+            color: white;
+        }
+
+        .back {
+            display: block;
+            margin: 20px auto;
+            padding: 14px 25px;
+            background: #2563eb;
+            color: white;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        #adminPanel {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    ABM Scoreboard - Admin
+</header>
+
+<div class="container">
+
+    <!-- LOGIN -->
+
+    <div class="box" id="loginBox">
+
+        <h2>Admin Login</h2>
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Email"
+        >
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+        >
+
+        <button class="login" onclick="login()">
+            LOGIN
+        </button>
+
+        <p id="message"></p>
+
+    </div>
+
+
+    <!-- ADMIN PANEL -->
+
+    <div id="adminPanel">
+
+        <div class="box">
+
+            <h2>Control Scores</h2>
+
+
+            <!-- GWu -->
+
+            <div class="team">
+
+                <h3>Team GWu</h3>
+
+                <div class="score" id="gwuScore">
+                    0
+                </div>
+
+                <div class="controls">
+
+                    <button
+                        class="minus"
+                        onclick="changeScore('GWu', -1)"
+                    >
+                        −
+                    </button>
+
+                    <button
+                        class="plus"
+                        onclick="changeScore('GWu', 1)"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ATb -->
+
+            <div class="team">
+
+                <h3>Team ATb</h3>
+
+                <div class="score" id="atbScore">
+                    0
+                </div>
+
+                <div class="controls">
+
+                    <button
+                        class="minus"
+                        onclick="changeScore('ATb', -1)"
+                    >
+                        −
+                    </button>
+
+                    <button
+                        class="plus"
+                        onclick="changeScore('ATb', 1)"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <button class="logout" onclick="logout()">
+                LOG OUT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="back"
+        onclick="location.href='index.html'"
+    >
+        BACK
+    </button>
+
+</div>
+
+
+<script type="module">
+
+    import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+    import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged
+    } from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+    import {
+        getFirestore,
+        doc,
+        onSnapshot,
+        runTransaction
+    } from
+    "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+    // FIREBASE CONFIG
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyApvakGAfMcDM_hfaaUrbs_1w3xLIwMctE",
+        authDomain: "abm-scoreboard.firebaseapp.com",
+        projectId: "abm-scoreboard",
+        storageBucket: "abm-scoreboard.firebasestorage.app",
+        messagingSenderId: "684237199515",
+        appId: "1:684237199515:web:a7d9025da138d93e340e3e"
+    };
+
+
+    const app = initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+
+    const db = getFirestore(app);
+
+
+    const scoreboardRef =
+        doc(db, "scoreboard", "scores");
+
+
+    // YOUR ADMIN UID
+
+    const ADMIN_UID =
+        "2Cts34dYHFYfpIxAlcSD5r3b32B3";
+
+
+    // LOGIN
+
+    window.login = async function() {
+
+        const email =
+            document.getElementById("email").value;
+
+        const password =
+            document.getElementById("password").value;
+
+        const message =
+            document.getElementById("message");
+
+
+        try {
+
+            const result =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            if (result.user.uid !== ADMIN_UID) {
+
+                await signOut(auth);
+
+                message.textContent =
+                    "This is not the admin account.";
+
+                return;
+            }
+
+
+            message.textContent = "";
+
+        } catch (error) {
+
+            message.textContent =
+                "Login failed. Check your email and password.";
+
+        }
+
+    };
+
+
+    // CHECK LOGIN
+
+    onAuthStateChanged(auth, (user) => {
+
+        if (user && user.uid === ADMIN_UID) {
+
+            document.getElementById("loginBox")
+                .style.display = "none";
+
+            document.getElementById("adminPanel")
+                .style.display = "block";
+
+        } else {
+
+            document.getElementById("loginBox")
+                .style.display = "block";
+
+            document.getElementById("adminPanel")
+                .style.display = "none";
+
+        }
+
+    });
+
+
+    // LIVE SCORES
+
+    onSnapshot(scoreboardRef, (snapshot) => {
+
+        if (!snapshot.exists()) {
+            return;
+        }
+
+        const data = snapshot.data();
+
+        document.getElementById("gwuScore")
+            .textContent = Number(data.GWu || 0);
+
+        document.getElementById("atbScore")
+            .textContent = Number(data.ATb || 0);
+
+    });
+
+
+    // CHANGE SCORE
+
+    window.changeScore = async function(team, amount) {
+
+        const user = auth.currentUser;
+
+
+        if (!user || user.uid !== ADMIN_UID) {
+
+            alert("You are not authorized.");
+
+            return;
+        }
+
+
+        try {
+
+            await runTransaction(db, async (transaction) => {
+
+                const snapshot =
+                    await transaction.get(scoreboardRef);
+
+                const data = snapshot.data();
+
+                const currentScore =
+                    Number(data[team] || 0);
+
+                const newScore =
+                    Math.max(0, currentScore + amount);
+
+
+                transaction.update(
+                    scoreboardRef,
+                    {
+                        [team]: newScore
+                    }
+                );
+
+            });
+
+        } catch (error) {
+
+            alert("Could not update the score.");
+
+            console.error(error);
+
+        }
+
+    };
+
+
+    // LOG OUT
+
+    window.logout = async function() {
+
+        await signOut(auth);
+
+    };
+
+</script>
+
+</body>
+</html>
