@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABM Scoreboard</title>
+
+```
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f7fb;
+        color: #222;
+    }
+
+    header {
+        background: #111827;
+        color: white;
+        padding: 22px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        padding: 30px;
+    }
+
+    button {
+        width: 320px;
+        padding: 18px;
+        border: none;
+        border-radius: 12px;
+        background: #2563eb;
+        color: white;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #1d4ed8;
+    }
+
+    .admin {
+        background: #374151;
+    }
+
+    .admin:hover {
+        background: #1f2937;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<header>
+    ABM Scoreboard
+</header>
+
+<div class="container">
+
+```
+<button onclick="location.href='teams.html'">
+    SEE TEAMS AND CAPTAINS
+</button>
+
+<button onclick="location.href='scoreboard.html'">
+    SEE SCOREBOARD
+</button>
+
+<button class="admin" onclick="location.href='admin.html'">
+    ADMIN LOGIN
+</button>
+```
+
+</div>
+
+</body>
+</html>
